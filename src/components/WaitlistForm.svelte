@@ -1,14 +1,11 @@
 <script>
-  import { onMount } from 'svelte';
-  
   let email = '';
   let isSubmitting = false;
   let message = '';
   let messageType = '';
   let waitlistClosed = false;
   
-  // Check if waitlist is closed on component mount
-  onMount(async () => {
+  async function checkWaitlistStatus() {
     try {
       const response = await fetch('/api/waitlist-count');
       if (response.ok) {
@@ -26,7 +23,7 @@
       // Expected when Supabase is not configured
       console.log('Waitlist status check unavailable - Supabase not configured');
     }
-  });
+  }
 
   async function handleSubmit() {
     if (waitlistClosed) {
@@ -82,6 +79,11 @@
       isSubmitting = false;
     }
   }
+  
+  // Check waitlist status when component becomes interactive
+  function handleFormFocus() {
+    checkWaitlistStatus();
+  }
 </script>
 
 <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 mt-8 waitlist-form">
@@ -126,6 +128,7 @@
           placeholder="Enter your email address..."
           required
           disabled={isSubmitting}
+          on:focus={handleFormFocus}
           class="flex-1 p-4 px-6 border-none text-base bg-white text-slate-800 placeholder-slate-400 focus:outline-none md:rounded-l-xl md:rounded-r-none rounded-t-xl md:rounded-t-none disabled:opacity-50"
         />
         <button

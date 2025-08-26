@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import VercelAnalytics from '../components/VercelAnalytics.astro';
 
 export interface Props {
   title: string;
@@ -243,6 +244,9 @@ const author = "InvoiceFlow Team";
          });
        }
      </script>
+     
+     <!-- Vercel Analytics Integration -->
+     <VercelAnalytics />
    </body>
  </html>
 

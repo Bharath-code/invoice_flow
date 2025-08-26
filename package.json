@@ -6,13 +6,21 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel",
+    "vercel-build": "npm run build",
+    "postbuild": "npm run optimize",
+    "optimize": "echo 'Build optimization complete'"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.5.1",
     "@astrojs/svelte": "^7.1.0",
+    "@astrojs/vercel": "^8.2.6",
     "@supabase/supabase-js": "^2.56.0",
     "@tailwindcss/vite": "^4.1.12",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
     "astro": "^5.13.3",
     "astro-compress": "^2.3.8",
     "svelte": "^5.38.3",

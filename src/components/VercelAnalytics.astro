@@ -1,0 +1,104 @@
+---
+// Vercel Analytics and Speed Insights Integration
+// Only loads in production environment
+const isProduction = import.meta.env.PROD;
+const enableAnalytics = import.meta.env.PUBLIC_ENABLE_ANALYTICS === 'true';
+---
+
+{isProduction && enableAnalytics && (
+  <>
+    <!-- Vercel Analytics -->
+    <script type="module">
+      import { inject } from '@vercel/analytics';
+      inject();
+    </script>
+    
+    <!-- Vercel Speed Insights -->
+    <script type="module">
+      import { injectSpeedInsights } from '@vercel/speed-insights';
+      injectSpeedInsights();
+    </script>
+  </>
+)}
+
+<script>
+  // Enhanced analytics with custom events
+  if (typeof window !== 'undefined' && window.va) {
+    // Track page views
+    window.va('track', 'pageview', {
+      page: window.location.pathname,
+      title: document.title
+    });
+    
+    // Track invoice actions
+    document.addEventListener('invoice-created', (event) => {
+      window.va('track', 'invoice_created', {
+        invoice_id: event.detail?.id,
+        amount: event.detail?.amount
+      });
+    });
+    
+    document.addEventListener('invoice-sent', (event) => {
+      window.va('track', 'invoice_sent', {
+        invoice_id: event.detail?.id,
+        method: event.detail?.method
+      });
+    });
+    
+    document.addEventListener('payment-received', (event) => {
+      window.va('track', 'payment_received', {
+        invoice_id: event.detail?.id,
+        amount: event.detail?.amount,
+        payment_method: event.detail?.method
+      });
+    });
+    
+    // Track user engagement
+    document.addEventListener('feature-used', (event) => {
+      window.va('track', 'feature_usage', {
+        feature: event.detail?.feature,
+        context: event.detail?.context
+      });
+    });
+    
+    // Track errors
+    window.addEventListener('error', (event) => {
+      window.va('track', 'error', {
+        message: event.message,
+        filename: event.filename,
+        line: event.lineno,
+        column: event.colno
+      });
+    });
+    
+    // Track performance issues
+    if ('PerformanceObserver' in window) {
+      const observer = new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) {
+          if (entry.entryType === 'largest-contentful-paint') {
+            window.va('track', 'lcp', {
+              value: Math.round(entry.startTime),
+              rating: entry.startTime > 2500 ? 'poor' : entry.startTime > 1200 ? 'needs-improvement' : 'good'
+            });
+          }
+          
+          if (entry.entryType === 'first-input') {
+            window.va('track', 'fid', {
+              value: Math.round(entry.processingStart - entry.startTime),
+              rating: entry.processingStart - entry.startTime > 100 ? 'poor' : entry.processingStart - entry.startTime > 50 ? 'needs-improvement' : 'good'
+            });
+          }
+        }
+      });
+      
+      observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input'] });
+    }
+  }
+</script>
+
+<style>
+  /* Ensure analytics scripts don't affect layout */
+  script {
+    display: none;
+  }
+</style>
