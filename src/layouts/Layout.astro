@@ -12,8 +12,8 @@ export interface Props {
 
 const { 
   title, 
-  description = "Professional invoicing made simple. Get paid faster with automated reminders and one-click payments.",
-  keywords = "invoicing software, automated invoicing, invoice management, freelancer tools, small business invoicing, payment reminders, invoice tracking",
+  description = "InvoiceFlow streamlines your invoicing process with automated workflows, real-time tracking, and seamless integrations. Join thousands of businesses optimizing their billing operations.",
+  keywords = "invoice software, billing automation, invoice tracking, business invoicing, automated billing, invoice management, financial workflow",
   image = "/og-image.jpg",
   url = Astro.url.href,
   type = "website"
@@ -22,6 +22,8 @@ const {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const siteName = "InvoiceFlow";
 const author = "InvoiceFlow Team";
+
+
 ---
 
 <!doctype html>
@@ -76,6 +78,27 @@ const author = "InvoiceFlow Team";
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    <link rel="preconnect" href="https://api.supabase.co" />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    
+    <!-- Critical Resource Hints for Performance -->
+    <link rel="prefetch" href="/api/waitlist-count" />
+    <link rel="modulepreload" href="/src/components/WaitlistForm.svelte" />
+    
+    <!-- Optimize for mobile networks -->
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    
+    <!-- Performance hints -->
+    <meta name="dns-prefetch" content="//fonts.googleapis.com">
+    <meta name="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="http-equiv" content="x-dns-prefetch-control" content="on">
+    
+    <!-- Network optimization -->
+    <meta name="save-data" content="on">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     
     <!-- Structured Data -->
     <script type="application/ld+json">
@@ -136,11 +159,92 @@ const author = "InvoiceFlow Team";
         }
       }
     </script>
+    
+    <!-- Font imports moved to separate link tags to avoid PostCSS warnings -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cal+Sans:wght@400;600;700&display=swap" />
   </head>
   <body>
+    
+    <!-- Critical CSS for above-the-fold content -->
+    <style>
+      /* Critical styles to prevent layout shift */
+      .hero-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      /* Prevent layout shift for images */
+      img {
+        height: auto;
+        max-width: 100%;
+      }
+      
+      /* Loading state to prevent CLS */
+      .loading {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .loaded {
+        opacity: 1;
+      }
+      
+      /* Optimize font loading */
+      body {
+        font-display: swap;
+      }
+    </style>
+    
     <slot />
-  </body>
-</html>
+    
+    <!-- Web Vitals Monitoring -->
+     
+     
+     <!-- Service Worker Registration -->
+     <script>
+       // Register service worker for advanced caching
+       if ('serviceWorker' in navigator) {
+         window.addEventListener('load', async () => {
+           try {
+             const registration = await navigator.serviceWorker.register('/sw.js');
+             console.log('Service Worker registered successfully:', registration.scope);
+             
+             // Listen for updates
+             registration.addEventListener('updatefound', () => {
+               const newWorker = registration.installing;
+               if (newWorker) {
+                 newWorker.addEventListener('statechange', () => {
+                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                     // New content available, notify user
+                     console.log('New content available, please refresh.');
+                   }
+                 });
+               }
+             });
+           } catch (error) {
+             console.error('Service Worker registration failed:', error);
+           }
+         });
+         
+         // Send performance metrics to service worker
+         navigator.serviceWorker.ready.then(registration => {
+           // Listen for web vitals and send to SW
+           window.addEventListener('webVitalsMetric', (event) => {
+             if (registration.active) {
+               registration.active.postMessage({
+                 type: 'PERFORMANCE_METRICS',
+                 metrics: event.detail
+               });
+             }
+           });
+         });
+       }
+     </script>
+   </body>
+ </html>
 
 <style>
   html {

@@ -1,0 +1,373 @@
+---
+// Performance Monitor Component for Core Web Vitals and Network Optimization
+---
+
+<div id="performance-monitor" class="fixed bottom-4 right-4 z-50 bg-slate-900 text-white p-3 rounded-lg shadow-lg text-xs font-mono opacity-90 transition-opacity hover:opacity-100" style="display: none;">
+  <div class="flex flex-col space-y-1">
+    <div class="flex justify-between items-center mb-2">
+      <span class="font-semibold">Performance Metrics</span>
+      <button id="toggle-monitor" class="text-blue-400 hover:text-blue-300">×</button>
+    </div>
+    <div id="lcp-metric" class="flex justify-between">
+      <span>LCP:</span>
+      <span id="lcp-value" class="text-green-400">-</span>
+    </div>
+    <div id="cls-metric" class="flex justify-between">
+      <span>CLS:</span>
+      <span id="cls-value" class="text-green-400">-</span>
+    </div>
+    <div id="inp-metric" class="flex justify-between">
+      <span>INP:</span>
+      <span id="inp-value" class="text-green-400">-</span>
+    </div>
+    <div id="fcp-metric" class="flex justify-between">
+      <span>FCP:</span>
+      <span id="fcp-value" class="text-blue-400">-</span>
+    </div>
+    <div id="ttfb-metric" class="flex justify-between">
+      <span>TTFB:</span>
+      <span id="ttfb-value" class="text-blue-400">-</span>
+    </div>
+    <hr class="border-slate-700 my-1">
+    <div id="network-info" class="flex justify-between">
+      <span>Network:</span>
+      <span id="network-type" class="text-yellow-400">-</span>
+    </div>
+    <div id="connection-speed" class="flex justify-between">
+      <span>Speed:</span>
+      <span id="connection-value" class="text-yellow-400">-</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { getCLS, getFCP, getFID, getLCP, getTTFB, onINP } from 'web-vitals';
+  
+  // Performance monitoring and optimization
+  class PerformanceMonitor {
+    constructor() {
+      this.metrics = {};
+      this.networkInfo = {};
+      this.init();
+    }
+    
+    init() {
+      // Only show monitor in development or when debug flag is set
+      const isDev = import.meta.env.DEV;
+      const showMonitor = isDev || new URLSearchParams(window.location.search).has('debug-perf');
+      
+      if (showMonitor) {
+        this.showMonitor();
+        this.setupToggle();
+      }
+      
+      this.detectNetworkConditions();
+      this.measureCoreWebVitals();
+      this.optimizeForNetwork();
+      this.setupPerformanceObserver();
+    }
+    
+    showMonitor() {
+      const monitor = document.getElementById('performance-monitor');
+      if (monitor) {
+        monitor.style.display = 'block';
+      }
+    }
+    
+    setupToggle() {
+      const toggle = document.getElementById('toggle-monitor');
+      const monitor = document.getElementById('performance-monitor');
+      
+      if (toggle && monitor) {
+        toggle.addEventListener('click', () => {
+          monitor.style.display = 'none';
+        });
+      }
+    }
+    
+    detectNetworkConditions() {
+      // Detect network type and speed
+      if ('connection' in navigator) {
+        const connection = navigator.connection;
+        this.networkInfo = {
+          effectiveType: connection.effectiveType,
+          downlink: connection.downlink,
+          rtt: connection.rtt,
+          saveData: connection.saveData
+        };
+        
+        this.updateNetworkDisplay();
+        
+        // Listen for network changes
+        connection.addEventListener('change', () => {
+          this.detectNetworkConditions();
+          this.optimizeForNetwork();
+        });
+      }
+    }
+    
+    updateNetworkDisplay() {
+      const networkType = document.getElementById('network-type');
+      const connectionValue = document.getElementById('connection-value');
+      
+      if (networkType && this.networkInfo.effectiveType) {
+        networkType.textContent = this.networkInfo.effectiveType.toUpperCase();
+        
+        // Color code based on network speed
+        const colors = {
+          'slow-2g': 'text-red-400',
+          '2g': 'text-orange-400',
+          '3g': 'text-yellow-400',
+          '4g': 'text-green-400',
+          '5g': 'text-blue-400'
+        };
+        
+        networkType.className = colors[this.networkInfo.effectiveType] || 'text-gray-400';
+      }
+      
+      if (connectionValue && this.networkInfo.downlink) {
+        connectionValue.textContent = `${this.networkInfo.downlink} Mbps`;
+      }
+    }
+    
+    measureCoreWebVitals() {
+      // Largest Contentful Paint
+      getLCP((metric) => {
+        this.metrics.lcp = metric.value;
+        this.updateMetricDisplay('lcp', metric.value, [2500, 4000]);
+        this.sendToAnalytics('LCP', metric);
+      });
+      
+      // Cumulative Layout Shift
+      getCLS((metric) => {
+        this.metrics.cls = metric.value;
+        this.updateMetricDisplay('cls', metric.value, [0.1, 0.25]);
+        this.sendToAnalytics('CLS', metric);
+      });
+      
+      // Interaction to Next Paint (replaces FID)
+      onINP((metric) => {
+        this.metrics.inp = metric.value;
+        this.updateMetricDisplay('inp', metric.value, [200, 500]);
+        this.sendToAnalytics('INP', metric);
+      });
+      
+      // First Contentful Paint
+      getFCP((metric) => {
+        this.metrics.fcp = metric.value;
+        this.updateMetricDisplay('fcp', metric.value, [1800, 3000]);
+        this.sendToAnalytics('FCP', metric);
+      });
+      
+      // Time to First Byte
+      getTTFB((metric) => {
+        this.metrics.ttfb = metric.value;
+        this.updateMetricDisplay('ttfb', metric.value, [800, 1800]);
+        this.sendToAnalytics('TTFB', metric);
+      });
+    }
+    
+    updateMetricDisplay(metricName, value, thresholds) {
+      const element = document.getElementById(`${metricName}-value`);
+      if (!element) return;
+      
+      const [good, needsImprovement] = thresholds;
+      let displayValue, colorClass;
+      
+      if (metricName === 'cls') {
+        displayValue = value.toFixed(3);
+      } else {
+        displayValue = `${Math.round(value)}ms`;
+      }
+      
+      // Color code based on thresholds
+      if (value <= good) {
+        colorClass = 'text-green-400';
+      } else if (value <= needsImprovement) {
+        colorClass = 'text-yellow-400';
+      } else {
+        colorClass = 'text-red-400';
+      }
+      
+      element.textContent = displayValue;
+      element.className = colorClass;
+    }
+    
+    optimizeForNetwork() {
+      const effectiveType = this.networkInfo.effectiveType;
+      
+      if (effectiveType === 'slow-2g' || effectiveType === '2g') {
+        this.applySlowNetworkOptimizations();
+      } else if (effectiveType === '3g') {
+        this.apply3GOptimizations();
+      } else if (effectiveType === '4g' || effectiveType === '5g') {
+        this.applyFastNetworkOptimizations();
+      }
+    }
+    
+    applySlowNetworkOptimizations() {
+      // Disable non-critical animations
+      document.documentElement.style.setProperty('--animation-duration', '0ms');
+      
+      // Reduce image quality
+      const images = document.querySelectorAll('img[data-src]');
+      images.forEach(img => {
+        if (img.dataset.srcLow) {
+          img.src = img.dataset.srcLow;
+        }
+      });
+      
+      // Defer non-critical resources
+      this.deferNonCriticalResources();
+    }
+    
+    apply3GOptimizations() {
+      // Reduce animation complexity
+      document.documentElement.style.setProperty('--animation-duration', '200ms');
+      
+      // Lazy load below-the-fold content more aggressively
+      this.setupAggressiveLazyLoading();
+    }
+    
+    applyFastNetworkOptimizations() {
+      // Enable full animations and preload more resources
+      document.documentElement.style.setProperty('--animation-duration', '300ms');
+      
+      // Preload next page resources
+      this.preloadNextPageResources();
+    }
+    
+    setupAggressiveLazyLoading() {
+      if ('IntersectionObserver' in window) {
+        const lazyObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const img = entry.target;
+              if (img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                lazyObserver.unobserve(img);
+              }
+            }
+          });
+        }, {
+          rootMargin: '50px' // Smaller margin for slower networks
+        });
+        
+        document.querySelectorAll('img[data-src]').forEach(img => {
+          lazyObserver.observe(img);
+        });
+      }
+    }
+    
+    deferNonCriticalResources() {
+      // Defer non-critical CSS
+      const nonCriticalCSS = document.querySelectorAll('link[rel="stylesheet"]:not([data-critical])');
+      nonCriticalCSS.forEach(link => {
+        link.media = 'print';
+        link.onload = function() {
+          this.media = 'all';
+        };
+      });
+    }
+    
+    preloadNextPageResources() {
+      // Preload likely next page resources on fast connections
+      const preloadLinks = [
+        { href: '/api/waitlist-count', as: 'fetch' },
+        { href: '/fonts/inter-var.woff2', as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }
+      ];
+      
+      preloadLinks.forEach(({ href, as, type, crossorigin }) => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = href;
+        link.as = as;
+        if (type) link.type = type;
+        if (crossorigin) link.crossOrigin = crossorigin;
+        document.head.appendChild(link);
+      });
+    }
+    
+    setupPerformanceObserver() {
+      if ('PerformanceObserver' in window) {
+        // Monitor Long Tasks
+        const longTaskObserver = new PerformanceObserver((list) => {
+          list.getEntries().forEach((entry) => {
+            if (entry.duration > 50) {
+              console.warn(`Long task detected: ${entry.duration}ms`, entry);
+              this.sendToAnalytics('LongTask', {
+                duration: entry.duration,
+                startTime: entry.startTime
+              });
+            }
+          });
+        });
+        
+        try {
+          longTaskObserver.observe({ entryTypes: ['longtask'] });
+        } catch (e) {
+          // Long tasks not supported
+        }
+        
+        // Monitor Layout Shifts
+        const layoutShiftObserver = new PerformanceObserver((list) => {
+          list.getEntries().forEach((entry) => {
+            if (entry.hadRecentInput) return; // Ignore user-initiated shifts
+            
+            if (entry.value > 0.1) {
+              console.warn(`Layout shift detected: ${entry.value}`, entry);
+            }
+          });
+        });
+        
+        try {
+          layoutShiftObserver.observe({ entryTypes: ['layout-shift'] });
+        } catch (e) {
+          // Layout shift not supported
+        }
+      }
+    }
+    
+    sendToAnalytics(metricName, metric) {
+      // Store metrics in localStorage for debugging
+      const perfData = JSON.parse(localStorage.getItem('webVitals') || '{}');
+      perfData[metricName] = {
+        value: metric.value,
+        timestamp: Date.now(),
+        networkType: this.networkInfo.effectiveType
+      };
+      localStorage.setItem('webVitals', JSON.stringify(perfData));
+      
+      // In production, send to analytics service
+      if (!import.meta.env.DEV) {
+        // Example: gtag('event', 'web_vitals', { metric_name: metricName, value: metric.value });
+        console.log(`Analytics: ${metricName}`, metric.value);
+      }
+    }
+  }
+  
+  // Initialize performance monitoring
+  if (typeof window !== 'undefined') {
+    new PerformanceMonitor();
+  }
+</script>
+
+<style>
+  /* Performance monitor styles */
+  #performance-monitor {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 200px;
+  }
+  
+  @media (max-width: 768px) {
+    #performance-monitor {
+      bottom: 1rem;
+      right: 1rem;
+      font-size: 10px;
+      padding: 8px;
+    }
+  }
+</style>

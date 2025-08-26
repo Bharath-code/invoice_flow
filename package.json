@@ -17,6 +17,7 @@
     "astro-compress": "^2.3.8",
     "svelte": "^5.38.3",
     "tailwindcss": "^4.1.12",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "web-vitals": "^5.1.0"
   }
 }

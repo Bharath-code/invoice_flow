@@ -1,6 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Cal+Sans:wght@400;600;700&display=swap');
+/* Font imports moved to Layout.astro head section to avoid PostCSS warnings */
 
 /* InvoiceFlow Brand System */
 :root {

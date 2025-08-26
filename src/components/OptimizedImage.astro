@@ -1,0 +1,276 @@
+---
+export interface Props {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  loading?: 'lazy' | 'eager';
+  priority?: boolean;
+  sizes?: string;
+  class?: string;
+  style?: string;
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  loading = 'lazy',
+  priority = false,
+  sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw',
+  class: className = '',
+  style = '',
+  ...rest
+} = Astro.props;
+
+// Generate responsive image sources
+const generateSrcSet = (baseSrc: string) => {
+  const ext = baseSrc.split('.').pop();
+  const baseName = baseSrc.replace(`.${ext}`, '');
+  
+  // Generate different sizes for responsive images
+  const sizes = [320, 640, 768, 1024, 1280, 1920];
+  return sizes.map(size => `${baseName}-${size}w.${ext} ${size}w`).join(', ');
+};
+
+const srcSet = generateSrcSet(src);
+const loadingStrategy = priority ? 'eager' : loading;
+const fetchPriority = priority ? 'high' : 'auto';
+---
+
+<picture class={`optimized-image ${className}`}>
+  <!-- WebP format for modern browsers -->
+  <source
+    srcset={srcSet.replace(/\.(jpg|jpeg|png)/g, '.webp')}
+    sizes={sizes}
+    type="image/webp"
+  />
+  
+  <!-- AVIF format for even better compression -->
+  <source
+    srcset={srcSet.replace(/\.(jpg|jpeg|png)/g, '.avif')}
+    sizes={sizes}
+    type="image/avif"
+  />
+  
+  <!-- Fallback to original format -->
+  <img
+    src={src}
+    srcset={srcSet}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={loadingStrategy}
+    fetchpriority={fetchPriority}
+    sizes={sizes}
+    style={style}
+    class={`responsive-img ${className}`}
+    decoding={priority ? 'sync' : 'async'}
+    {...rest}
+  />
+</picture>
+
+<style>
+  .optimized-image {
+    display: block;
+    position: relative;
+  }
+  
+  .responsive-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+  }
+  
+  /* Loading state */
+  .responsive-img[loading="lazy"] {
+    opacity: 0;
+  }
+  
+  .responsive-img.loaded {
+    opacity: 1;
+  }
+  
+  /* Prevent layout shift */
+  .optimized-image {
+    aspect-ratio: var(--img-aspect-ratio, auto);
+  }
+  
+  /* Performance optimizations */
+  .responsive-img {
+    will-change: auto;
+    contain: layout style paint;
+  }
+  
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .responsive-img {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Enhanced lazy loading with intersection observer
+  class OptimizedImageLoader {
+    constructor() {
+      this.init();
+    }
+    
+    init() {
+      if ('IntersectionObserver' in window) {
+        this.setupLazyLoading();
+      } else {
+        // Fallback for older browsers
+        this.loadAllImages();
+      }
+      
+      this.setupErrorHandling();
+      this.setupLoadingStates();
+    }
+    
+    setupLazyLoading() {
+      const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            this.loadImage(img);
+            observer.unobserve(img);
+          }
+        });
+      }, {
+        // Load images when they're 100px away from viewport
+        rootMargin: '100px 0px',
+        threshold: 0.01
+      });
+      
+      // Observe all lazy images
+      document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+        imageObserver.observe(img);
+      });
+    }
+    
+    loadImage(img) {
+      // Create a new image to preload
+      const imageLoader = new Image();
+      
+      imageLoader.onload = () => {
+        // Image loaded successfully
+        img.classList.add('loaded');
+        
+        // Trigger any custom load events
+        img.dispatchEvent(new CustomEvent('imageLoaded', {
+          detail: { src: img.src, loadTime: performance.now() }
+        }));
+      };
+      
+      imageLoader.onerror = () => {
+        // Handle image load error
+        img.classList.add('error');
+        console.warn(`Failed to load image: ${img.src}`);
+      };
+      
+      // Start loading the image
+      if (img.srcset) {
+        imageLoader.srcset = img.srcset;
+      }
+      imageLoader.src = img.src;
+    }
+    
+    loadAllImages() {
+      // Fallback for browsers without IntersectionObserver
+      document.querySelectorAll('img[loading="lazy"]').forEach(img => {
+        this.loadImage(img);
+      });
+    }
+    
+    setupErrorHandling() {
+      document.addEventListener('error', (e) => {
+        if (e.target.tagName === 'IMG') {
+          const img = e.target;
+          
+          // Try to load a fallback image
+          if (!img.dataset.fallbackAttempted) {
+            img.dataset.fallbackAttempted = 'true';
+            
+            // Try loading a lower quality version
+            const fallbackSrc = img.src.replace(/-(\d+)w/, '-320w');
+            if (fallbackSrc !== img.src) {
+              img.src = fallbackSrc;
+              return;
+            }
+            
+            // If no fallback available, show placeholder
+            img.style.backgroundColor = '#f3f4f6';
+            img.style.color = '#6b7280';
+            img.alt = 'Image failed to load';
+          }
+        }
+      }, true);
+    }
+    
+    setupLoadingStates() {
+      // Add loading states for better UX
+      document.querySelectorAll('.optimized-image').forEach(container => {
+        const img = container.querySelector('img');
+        if (!img) return;
+        
+        // Add loading placeholder
+        if (img.loading === 'lazy') {
+          container.style.backgroundColor = '#f3f4f6';
+          container.style.backgroundImage = `
+            linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)
+          `;
+          container.style.backgroundSize = '200px 100%';
+          container.style.backgroundRepeat = 'no-repeat';
+          container.style.animation = 'shimmer 1.5s infinite';
+        }
+        
+        // Remove loading state when image loads
+        img.addEventListener('imageLoaded', () => {
+          container.style.backgroundColor = '';
+          container.style.backgroundImage = '';
+          container.style.animation = '';
+        });
+      });
+    }
+  }
+  
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      new OptimizedImageLoader();
+    });
+  } else {
+    new OptimizedImageLoader();
+  }
+</script>
+
+<style is:global>
+  /* Shimmer loading animation */
+  @keyframes shimmer {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
+  }
+  
+  /* Image error state */
+  img.error {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+  }
+  
+  img.error::before {
+    content: '🖼️ Image not available';
+    font-size: 14px;
+  }
+</style>

@@ -1,0 +1,155 @@
+---
+// Web Vitals monitoring component for tracking Core Web Vitals
+// This component tracks LCP, CLS, and INP for performance optimization
+---
+
+<script>
+  // Import web-vitals functions
+  import { onCLS, onFID, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
+
+  function sendToAnalytics(metric) {
+    // Log to console for development
+    console.log('Web Vital:', metric);
+    
+    // Store in localStorage for debugging
+    const vitals = JSON.parse(localStorage.getItem('webVitals') || '[]');
+    vitals.push({
+      ...metric,
+      timestamp: Date.now(),
+      url: window.location.href
+    });
+    localStorage.setItem('webVitals', JSON.stringify(vitals.slice(-50))); // Keep last 50 metrics
+    
+    // Send to analytics service (replace with your analytics endpoint)
+    // fetch('/api/analytics', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify(metric)
+    // });
+  }
+
+  // Monitor Core Web Vitals
+  onCLS(sendToAnalytics);
+  onFID(sendToAnalytics);
+  onFCP(sendToAnalytics);
+  onLCP(sendToAnalytics);
+  onTTFB(sendToAnalytics);
+  onINP(sendToAnalytics);
+
+  // Development dashboard
+  if (import.meta.env.DEV) {
+    const dashboard = document.createElement('div');
+    dashboard.id = 'web-vitals-dashboard';
+    dashboard.innerHTML = `
+      <div style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 12px; z-index: 10000; max-width: 300px;">
+        <h4 style="margin: 0 0 10px 0; color: #4ade80;">Web Vitals Monitor</h4>
+        <div id="vitals-display">Loading...</div>
+        <div id="network-info" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #333;"></div>
+      </div>
+    `;
+    document.body.appendChild(dashboard);
+
+    // Update dashboard
+    function updateDashboard() {
+      const vitals = JSON.parse(localStorage.getItem('webVitals') || '[]');
+      const latest = vitals.slice(-6); // Show last 6 metrics
+      
+      const display = document.getElementById('vitals-display');
+      if (display) {
+        display.innerHTML = latest.map(metric => {
+          const value = metric.value.toFixed(2);
+          const rating = metric.rating || 'unknown';
+          const color = rating === 'good' ? '#4ade80' : rating === 'needs-improvement' ? '#fbbf24' : '#ef4444';
+          return `<div style="color: ${color}">${metric.name}: ${value}${metric.name === 'CLS' ? '' : 'ms'} (${rating})</div>`;
+        }).join('');
+      }
+      
+      // Network information
+      const networkInfo = document.getElementById('network-info');
+      if (networkInfo && 'connection' in navigator) {
+        const conn = navigator.connection;
+        networkInfo.innerHTML = `
+          <div>Network: ${conn.effectiveType || 'unknown'}</div>
+          <div>Downlink: ${conn.downlink || 'unknown'} Mbps</div>
+          <div>RTT: ${conn.rtt || 'unknown'} ms</div>
+        `;
+      }
+    }
+
+    // Update dashboard every 2 seconds
+    setInterval(updateDashboard, 2000);
+    updateDashboard();
+  }
+</script>
+
+<!-- Performance monitoring dashboard (development only) -->
+<div id="perf-dashboard" style="display: none;">
+  <style>
+    #perf-dashboard {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 10000;
+      max-width: 300px;
+    }
+    .metric {
+      margin: 5px 0;
+    }
+    .good { color: #4CAF50; }
+    .needs-improvement { color: #FF9800; }
+    .poor { color: #F44336; }
+  </style>
+  
+  <div><strong>Core Web Vitals</strong></div>
+  <div id="lcp-metric" class="metric">LCP: Loading...</div>
+  <div id="cls-metric" class="metric">CLS: Loading...</div>
+  <div id="fid-metric" class="metric">FID: Loading...</div>
+  <div id="fcp-metric" class="metric">FCP: Loading...</div>
+  <div id="ttfb-metric" class="metric">TTFB: Loading...</div>
+  <div id="network-info" class="metric">Network: Loading...</div>
+</div>
+
+<script>
+  // Development dashboard (only show in development)
+  if (import.meta.env.DEV) {
+    document.getElementById('perf-dashboard').style.display = 'block';
+    
+    // Update dashboard with metrics
+    function updateDashboard(metric) {
+      const element = document.getElementById(`${metric.name.toLowerCase()}-metric`);
+      if (element) {
+        const value = metric.name === 'CLS' ? metric.value.toFixed(3) : Math.round(metric.value);
+        const unit = metric.name === 'CLS' ? '' : 'ms';
+        
+        let className = 'good';
+        if (metric.name === 'LCP' && metric.value > 2500) className = metric.value > 4000 ? 'poor' : 'needs-improvement';
+        if (metric.name === 'CLS' && metric.value > 0.1) className = metric.value > 0.25 ? 'poor' : 'needs-improvement';
+        if (metric.name === 'FID' && metric.value > 100) className = metric.value > 300 ? 'poor' : 'needs-improvement';
+        if (metric.name === 'FCP' && metric.value > 1800) className = metric.value > 3000 ? 'poor' : 'needs-improvement';
+        if (metric.name === 'TTFB' && metric.value > 800) className = metric.value > 1800 ? 'poor' : 'needs-improvement';
+        
+        element.innerHTML = `${metric.name}: <span class="${className}">${value}${unit}</span>`;
+      }
+    }
+    
+    // Override sendToAnalytics to update dashboard
+    const originalSendToAnalytics = sendToAnalytics;
+    sendToAnalytics = function(metric) {
+      originalSendToAnalytics(metric);
+      updateDashboard(metric);
+    };
+    
+    // Update network info
+    if ('connection' in navigator) {
+      const networkElement = document.getElementById('network-info');
+      const connection = navigator.connection;
+      networkElement.innerHTML = `Network: ${connection.effectiveType} (${connection.downlink}Mbps)`;
+    }
+  }
+</script>
