@@ -1,6 +1,7 @@
 ---
 // Hero Section component as Astro file
 import WaitlistForm from './WaitlistForm.svelte';
+import LiveCounter from './LiveCounter.astro';
 ---
 
 <section class="relative min-h-screen flex items-center overflow-hidden pt-18">
@@ -40,6 +41,11 @@ import WaitlistForm from './WaitlistForm.svelte';
             <span class="text-2xl">📊</span>
             <span class="text-sm font-medium">Track cash flow in real-time</span>
           </div>
+        </div>
+        
+        <!-- Live Counter -->
+        <div class="flex justify-center mb-6">
+          <LiveCounter />
         </div>
         
         <!-- Waitlist Form Component -->

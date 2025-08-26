@@ -1,0 +1,115 @@
+---
+import { getWaitlistCount } from '../lib/supabase.js';
+
+// Get initial count from Supabase
+let initialCount = 0;
+try {
+  initialCount = await getWaitlistCount();
+} catch (error) {
+  // Expected when Supabase is not configured
+  console.log('Waitlist count unavailable - Supabase not configured');
+  initialCount = 0;
+}
+---
+
+<div class="live-counter">
+  <div class="counter-container">
+    <svg class="w-5 h-5 counter-icon" fill="currentColor" viewBox="0 0 20 20">
+      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <span class="text-sm font-medium text-gray-700">
+      <span id="counter-number">{initialCount}</span> people joined
+    </span>
+  </div>
+</div>
+
+<style>
+  .live-counter {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(to right, #eff6ff, #faf5ff);
+    border: 1px solid #dbeafe;
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .counter-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .counter-icon {
+    color: #2563eb;
+    margin-right: 0.75rem;
+  }
+
+  @keyframes countUp {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .count-animation {
+    animation: countUp 0.3s ease-out;
+  }
+
+  .pulse-effect {
+    animation: pulse 0.6s ease-in-out;
+  }
+</style>
+
+<script>
+  // Update counter periodically
+  function updateCounter() {
+    fetch('/api/waitlist-count')
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          // API not available (likely Supabase not configured)
+          throw new Error('API not available');
+        }
+      })
+      .then(data => {
+        const counterElement = document.getElementById('counter-number');
+        if (counterElement && typeof data.count === 'number') {
+          const currentCount = parseInt(counterElement.textContent) || 0;
+          const newCount = data.count;
+          
+          if (newCount !== currentCount) {
+            counterElement.classList.add('count-animation');
+            counterElement.textContent = newCount;
+            
+            // Add pulse effect
+            const liveCounter = document.querySelector('.live-counter');
+            if (liveCounter) {
+              liveCounter.classList.add('pulse-effect');
+              setTimeout(() => {
+                liveCounter.classList.remove('pulse-effect');
+              }, 600);
+            }
+            
+            setTimeout(() => {
+              counterElement.classList.remove('count-animation');
+            }, 300);
+          }
+        }
+      })
+      .catch(error => {
+        // Expected when Supabase is not configured
+        console.log('Counter update unavailable - Supabase not configured');
+      });
+  }
+
+  // Update every 30 seconds
+  setInterval(updateCounter, 30000);
+
+  // Initial update after 5 seconds
+  setTimeout(updateCounter, 5000);
+</script>
