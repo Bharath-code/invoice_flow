@@ -1,0 +1,307 @@
+---
+// Competitor Comparison section for InvoiceFlow landing page
+---
+
+<section class="py-16 md:py-20 bg-slate-50">
+  <div class="container mx-auto px-4 md:px-6">
+    <!-- Section Header -->
+    <div class="text-center mb-12 md:mb-16">
+      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 mb-4 md:mb-6">
+        How we're different from the rest
+      </h2>
+      <p class="text-lg md:text-xl text-slate-700 max-w-3xl mx-auto">
+        Other tools help you send invoices. <span class="font-semibold text-blue-700">We help you get paid.</span>
+      </p>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="max-w-6xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Mobile Header -->
+        <div class="md:hidden bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4">
+          <h3 class="text-lg font-bold text-center">Feature Comparison</h3>
+        </div>
+        
+        <!-- Desktop Table Header -->
+        <div class="hidden md:block bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
+          <div class="grid grid-cols-5 gap-4 items-center">
+            <div class="font-semibold">Feature</div>
+            <div class="text-center font-semibold">QuickBooks / FreshBooks</div>
+            <div class="text-center font-semibold">Stripe Invoicing</div>
+            <div class="text-center font-semibold">Wave / Zoho (Free)</div>
+            <div class="text-center font-bold bg-white/20 rounded-lg py-2">InvoiceFlow</div>
+          </div>
+        </div>
+
+        <!-- Table Body -->
+        <div class="divide-y divide-slate-200">
+          <!-- Easy invoice creation -->
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-4 md:p-6 hover:bg-slate-50 transition-colors">
+            <div class="font-medium text-slate-900">Easy invoice creation</div>
+            <div class="text-center" data-label="QuickBooks / FreshBooks">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ Too complex
+              </span>
+              <p class="text-xs text-slate-600 mt-1">Accounting clutter</p>
+            </div>
+            <div class="text-center" data-label="Stripe Invoicing">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-900">
+                ✔️ Simple form
+              </span>
+            </div>
+            <div class="text-center" data-label="Wave / Zoho (Free)">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-900">
+                ✔️ Basic form
+              </span>
+            </div>
+            <div class="text-center" data-label="InvoiceFlow">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-900 font-semibold">
+                ✔️ 60-sec invoices
+              </span>
+            </div>
+          </div>
+
+          <!-- Smart payment reminders -->
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-4 md:p-6 hover:bg-slate-50 transition-colors">
+            <div class="font-medium text-slate-900">Smart payment reminders</div>
+            <div class="text-center" data-label="QuickBooks / FreshBooks">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ Manual chasing
+              </span>
+            </div>
+            <div class="text-center" data-label="Stripe Invoicing">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ None
+              </span>
+            </div>
+            <div class="text-center" data-label="Wave / Zoho (Free)">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ Limited
+              </span>
+            </div>
+            <div class="text-center" data-label="InvoiceFlow">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-900 font-semibold">
+                ✔️ Automated reminders
+              </span>
+              <p class="text-xs text-slate-600 mt-1">Smart follow-ups</p>
+            </div>
+          </div>
+
+          <!-- One-click payments -->
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-4 md:p-6 hover:bg-slate-50 transition-colors">
+            <div class="font-medium text-slate-900">One-click payments</div>
+            <div class="text-center" data-label="QuickBooks / FreshBooks">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-900">
+                ✔️ Yes
+              </span>
+            </div>
+            <div class="text-center" data-label="Stripe Invoicing">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800">
+                ✔️ Yes
+              </span>
+            </div>
+            <div class="text-center" data-label="Wave / Zoho (Free)">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-900">
+                ✔️ Sometimes
+              </span>
+            </div>
+            <div class="text-center" data-label="InvoiceFlow">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-900 font-semibold">
+                ✔️ Yes + client portal
+              </span>
+            </div>
+          </div>
+
+          <!-- Cashflow dashboard -->
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-4 md:p-6 hover:bg-slate-50 transition-colors">
+            <div class="font-medium text-slate-900">Cashflow dashboard</div>
+            <div class="text-center" data-label="QuickBooks / FreshBooks">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-900">
+                ✔️ Accounting-heavy
+              </span>
+            </div>
+            <div class="text-center" data-label="Stripe Invoicing">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
+                ❌ None
+              </span>
+            </div>
+            <div class="text-center" data-label="Wave / Zoho (Free)">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
+                ❌ None
+              </span>
+            </div>
+            <div class="text-center" data-label="InvoiceFlow">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-900 font-semibold">
+                ✔️ At a glance
+              </span>
+              <p class="text-xs text-slate-600 mt-1">Freelancer-focused</p>
+            </div>
+          </div>
+
+          <!-- Freelancer-friendly UX -->
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-4 md:p-6 hover:bg-slate-50 transition-colors">
+            <div class="font-medium text-slate-900">Freelancer-friendly UX</div>
+            <div class="text-center" data-label="QuickBooks / FreshBooks">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ For accountants
+              </span>
+            </div>
+            <div class="text-center" data-label="Stripe Invoicing">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-900">
+                ✔️ Minimal
+              </span>
+            </div>
+            <div class="text-center" data-label="Wave / Zoho (Free)">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ Clunky
+              </span>
+            </div>
+            <div class="text-center" data-label="InvoiceFlow">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-900 font-semibold">
+                ✔️ Built for freelancers
+              </span>
+            </div>
+          </div>
+
+          <!-- Emotional relief -->
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-4 md:p-6 hover:bg-slate-50 transition-colors">
+            <div class="font-medium text-slate-900">Stress-free automation</div>
+            <div class="text-center" data-label="QuickBooks / FreshBooks">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ Still awkward
+              </span>
+            </div>
+            <div class="text-center" data-label="Stripe Invoicing">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ Still awkward
+              </span>
+            </div>
+            <div class="text-center" data-label="Wave / Zoho (Free)">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900">
+                ❌ Still awkward
+              </span>
+            </div>
+            <div class="text-center" data-label="InvoiceFlow">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-900 font-semibold">
+                ✔️ No awkward chasing
+              </span>
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center p-4 md:p-6 bg-slate-50">
+            <div class="font-medium text-slate-900">Price</div>
+            <div class="text-center" data-label="QuickBooks / FreshBooks">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-900 font-semibold">
+                💰 $20–40/mo
+              </span>
+            </div>
+            <div class="text-center" data-label="Stripe Invoicing">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-900">
+                💰 Free
+              </span>
+            </div>
+            <div class="text-center" data-label="Wave / Zoho (Free)">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-900">
+                💰 Free
+              </span>
+            </div>
+            <div class="text-center" data-label="InvoiceFlow">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-900 font-bold text-lg">
+                💰 $9/mo
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Summary -->
+    <div class="mt-12 text-center">
+      <div class="bg-white rounded-xl p-8 shadow-lg max-w-4xl mx-auto">
+        <h3 class="text-2xl font-bold text-slate-900 mb-6">The Bottom Line</h3>
+        <div class="grid md:grid-cols-4 gap-6 text-sm">
+          <div class="p-4 bg-red-50 rounded-lg">
+            <div class="font-semibold text-red-800 mb-2">QuickBooks</div>
+            <div class="text-red-600">Too heavy for freelancers</div>
+          </div>
+          <div class="p-4 bg-yellow-50 rounded-lg">
+            <div class="font-semibold text-yellow-800 mb-2">Stripe</div>
+            <div class="text-yellow-600">Too light on features</div>
+          </div>
+          <div class="p-4 bg-orange-50 rounded-lg">
+            <div class="font-semibold text-orange-800 mb-2">Wave/Zoho</div>
+            <div class="text-orange-600">Free but useless when payments are late</div>
+          </div>
+          <div class="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+            <div class="font-bold text-blue-800 mb-2">InvoiceFlow</div>
+            <div class="text-blue-600 font-semibold">Just right → automation + relief + $9/mo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-12">
+      <p class="text-lg text-slate-600 mb-6">
+        Why settle for tools that weren't built for you?
+      </p>
+      <a href="#waitlist" class="inline-flex items-center px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors duration-200">
+        Join the waitlist
+        <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Mobile responsive adjustments */
+  @media (max-width: 768px) {
+    .grid-cols-1 > div:first-child {
+      font-weight: 600;
+      background: #f1f5f9;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      color: #1e293b;
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .grid-cols-1 > div:not(:first-child) {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: #fafafa;
+      border-radius: 0.5rem;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .grid-cols-1 > div:not(:first-child):before {
+      content: attr(data-label);
+      font-weight: 500;
+      color: #475569;
+      font-size: 0.875rem;
+    }
+  }
+</style>
+
+<script>
+  // Add mobile labels for responsive table
+  document.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth <= 768) {
+      const headers = ['QuickBooks/FreshBooks', 'Stripe', 'Wave/Zoho', 'InvoiceFlow'];
+      const rows = document.querySelectorAll('.grid-cols-5');
+      
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('div:not(:first-child)');
+        cells.forEach((cell, index) => {
+          cell.setAttribute('data-label', headers[index]);
+        });
+      });
+    }
+  });
+</script>
