@@ -4,7 +4,12 @@ import { getWaitlistCount } from '../lib/supabase.js';
 // Get initial count from Supabase
 let initialCount = 0;
 try {
-  initialCount = await getWaitlistCount();
+  const result = await getWaitlistCount();
+  if (result.success && typeof result.count === 'number') {
+    initialCount = result.count;
+  } else {
+    initialCount = 0;
+  }
 } catch (error) {
   // Expected when Supabase is not configured
   console.log('Waitlist count unavailable - Supabase not configured');
@@ -14,11 +19,13 @@ try {
 
 <div class="live-counter">
   <div class="counter-container">
-    <svg class="w-5 h-5 counter-icon" fill="currentColor" viewBox="0 0 20 20">
-      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
+    <div class="counter-icon">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+      </svg>
+    </div>
     <span class="text-sm font-medium text-gray-700">
-      <span id="counter-number">{initialCount}</span> people joined
+      <span id="counter-number">{initialCount}</span> founders already in
     </span>
   </div>
 </div>
@@ -40,8 +47,20 @@ try {
   }
 
   .counter-icon {
-    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+    border-radius: 50%;
     margin-right: 0.75rem;
+    animation: iconPulse 2s ease-in-out infinite;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  }
+  
+  .counter-icon svg {
+    color: white;
   }
 
   @keyframes countUp {
@@ -55,6 +74,21 @@ try {
     100% { transform: scale(1); }
   }
 
+  @keyframes iconPulse {
+    0% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% { 
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+    100% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
   .count-animation {
     animation: countUp 0.3s ease-out;
   }
@@ -62,9 +96,24 @@ try {
   .pulse-effect {
     animation: pulse 0.6s ease-in-out;
   }
+
+  .icon-pulse-active {
+    animation: iconPulse 0.8s ease-in-out 2;
+  }
 </style>
 
 <script>
+  // Track current count to avoid unnecessary updates
+  let currentCount = 0;
+  
+  // Initialize current count from DOM
+  document.addEventListener('DOMContentLoaded', () => {
+    const counterElement = document.getElementById('counter-number');
+    if (counterElement) {
+      currentCount = parseInt(counterElement.textContent) || 0;
+    }
+  });
+
   // Update counter periodically
   function updateCounter() {
     fetch('/api/waitlist-count')
@@ -79,15 +128,17 @@ try {
       .then(data => {
         const counterElement = document.getElementById('counter-number');
         if (counterElement && typeof data.count === 'number') {
-          const currentCount = parseInt(counterElement.textContent) || 0;
           const newCount = data.count;
           
           if (newCount !== currentCount) {
+            currentCount = newCount;
             counterElement.classList.add('count-animation');
             counterElement.textContent = newCount;
             
-            // Add pulse effect
+            // Add pulse effect to container and icon
             const liveCounter = document.querySelector('.live-counter');
+            const counterIcon = document.querySelector('.counter-icon');
+            
             if (liveCounter) {
               liveCounter.classList.add('pulse-effect');
               setTimeout(() => {
@@ -95,10 +146,20 @@ try {
               }, 600);
             }
             
+            if (counterIcon) {
+              counterIcon.classList.add('icon-pulse-active');
+              setTimeout(() => {
+                counterIcon.classList.remove('icon-pulse-active');
+              }, 1600); // 0.8s * 2 iterations
+            }
+            
             setTimeout(() => {
               counterElement.classList.remove('count-animation');
             }, 300);
           }
+        } else if (counterElement && data.error) {
+          // Handle error case gracefully
+          console.log('Counter API error:', data.error);
         }
       })
       .catch(error => {
