@@ -50,19 +50,19 @@ A high-performance, SEO-optimized landing page for InvoiceFlow - the AI-powered 
 
 3. **Set up environment variables**
    ```bash
-   cp .env.example .env.local
+   cp .env.example .env
    ```
    
-   Configure your `.env.local` file:
+   Configure your `.env` file with your Supabase credentials:
    ```bash
-   # Supabase Configuration
-   PUBLIC_SUPABASE_URL=your_supabase_project_url
-   PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   
-   # Site Configuration
-   SITE_URL=http://localhost:4321
-   CONTACT_EMAIL=hello@invoiceflow.com
+   # Supabase Configuration (Required for waitlist functionality)
+   PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+   PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
    ```
+   
+   📋 **Need help with Supabase setup?** See our detailed guide: [SUPABASE_ENV_SETUP.md](./SUPABASE_ENV_SETUP.md)
+   
+   ⚠️ **Note**: The app will run without Supabase configured, but waitlist functionality will be disabled.
 
 4. **Start development server**
    ```bash

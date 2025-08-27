@@ -4,14 +4,26 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+// Check if Supabase is properly configured
+const isSupabaseConfigured = supabaseUrl && 
+  supabaseAnonKey && 
+  supabaseUrl !== 'your_supabase_url_here' && 
+  supabaseAnonKey !== 'your_supabase_anon_key_here' &&
+  supabaseUrl.startsWith('https://')
+
+if (!isSupabaseConfigured) {
+  console.warn('Supabase not configured. Waitlist functionality will be disabled.')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = isSupabaseConfigured ? createClient(supabaseUrl, supabaseAnonKey) : null
 
 // Waitlist functions
 export async function addToWaitlist(email, isFounderMember = false) {
+  if (!supabase) {
+    console.warn('Supabase not configured - waitlist signup disabled')
+    return { success: false, error: 'Waitlist functionality is currently unavailable' }
+  }
+
   try {
     const { data, error } = await supabase
       .from('waitlist')
@@ -37,6 +49,11 @@ export async function addToWaitlist(email, isFounderMember = false) {
 }
 
 export async function getWaitlistCount() {
+  if (!supabase) {
+    console.warn('Supabase not configured - returning default count')
+    return { success: true, count: 0 }
+  }
+
   try {
     const { count, error } = await supabase
       .from('waitlist')
@@ -55,6 +72,11 @@ export async function getWaitlistCount() {
 }
 
 export async function getFounderMemberCount() {
+  if (!supabase) {
+    console.warn('Supabase not configured - returning default founder count')
+    return { success: true, count: 0 }
+  }
+
   try {
     const { count, error } = await supabase
       .from('waitlist')
