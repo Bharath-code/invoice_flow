@@ -6,6 +6,8 @@ A high-performance, SEO-optimized landing page for InvoiceFlow - the AI-powered 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Astro](https://img.shields.io/badge/Built%20with-Astro-ff5d01)](https://astro.build)
 
+> 🚀 **Ready to Deploy?** Check out our [Vercel Deployment Summary](./VERCEL_DEPLOYMENT_SUMMARY.md) for a complete deployment guide!
+
 ## ✨ Features
 
 - **🎯 High-Converting Design**: Modern, professional landing page optimized for conversions
